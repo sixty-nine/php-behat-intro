@@ -53,4 +53,14 @@ class FeatureContext implements Context
     {
         Assert::eq($this->lastResult, $arg1);
     }
+
+    /**
+     * @When /^(?:I call|calling) Fibonacci\((-?\d+)\) the result (?:is|should be) (\d+)$/
+     */
+    public function iCallFibonacciTheResultIs($input, $output)
+    {
+        $result = $this->calculator->calc($input);
+        Assert::eq($result, $output);
+    }
+
 }

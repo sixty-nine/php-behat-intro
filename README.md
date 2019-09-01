@@ -19,6 +19,8 @@ in `features/bootstrap/FeatureContext.php`.
 
 ## Writing our first scenario
 
+### Features and scenarii
+
 In BDD we test *Features*.
 
 Features are written with Gherkin, a domain specific language, very
@@ -87,7 +89,7 @@ You can use the command `vendor/bin/behat --story-syntax` to see the full syntax
       | D      | M      |
 ```
 
-## Running behat
+### The first execution
 
 Let's run behat now.
 
@@ -115,6 +117,8 @@ and throwing an exception.
 The magic happen in the annotation in the comment. 
 `@When` defines the match between our step and the PHP code.
 
+### Pending steps
+
 Let's add the two methods that Behat proposes to our FeatureContext class
 and run Behat again.
 
@@ -126,7 +130,7 @@ pending steps.
 A pending step is triggered by the `PendingException` we've seen above.
 It means we now have to actually implement the test.
 
-## Making the step pass
+### Passing steps
 
 First thing to do, use the composer autoloader.
 Add this line on top of the feature context:
@@ -154,6 +158,8 @@ Now if we run Behat one more time:
 
 We finally have a green step :)
 
+### Step by step
+
 Let's implement the two remaining steps. 
 
 ```php
@@ -180,10 +186,119 @@ you to use any assertion framework you want. Here I use `webmozart/assert`.
 
 Throwing an exception in a step will make the step fail.
 
-You start bein used to it, let's run Behat:
+You start being used to it, let's run Behat:
 
 ![](/images/behat4.gif)
 
 All green \o/
 
 Congratulation you are now a Behat user.
+
+### The magic of behat
+
+Let's write some more scenarii.
+
+```
+  Scenario: The second number of the sequence must be 1
+       When I calculate the Fibonacci number of 1
+       Then the result should be 1
+
+  Scenario: The following numbers must match
+       When I calculate the Fibonacci number of 2
+       Then the result should be 1
+       When I calculate the Fibonacci number of 3
+       Then the result should be 2
+       When I calculate the Fibonacci number of 4
+       Then the result should be 3
+```
+
+![](/images/behat5.gif)
+
+We didn't need to write more PHP code because we use sentences matching
+our steps definitions in the feature context and Behat recognise them.
+
+## Going further
+
+### Regexp step definitions
+
+You can use regexp in the steps definitions so that only one step definition
+is required for the following scenario.
+
+```
+Scenario: Different people use different language
+   When I call Fibonacci(-1) the result is 0
+   When I call Fibonacci(5) the result should be 5
+   When calling Fibonacci(6) the result should be 8
+```
+
+```php
+<?php
+/**
+ * @When /^(?:I call|calling) Fibonacci\((-?\d+)\) the result (?:is|should be) (\d+)$/
+ */
+public function iCallFibonacciTheResultIs($input, $output)
+{
+    $result = $this->calculator->calc($input);
+    Assert::eq($result, $output);
+}
+```
+
+### Transformers
+
+Let's say we have a step to define the current date.
+
+```
+Background:
+    Given we write the dates normally
+
+Scenario:
+    Given today is 26-06-1969
+```
+
+The following step would match this code. 
+
+```php
+<?php
+/**
+ * @Given /^today is (\d?\d-\d?\d-\d\d\d\d)$/
+ */
+public function todayIs(string $date)
+{
+    $today = $date;
+}
+```
+
+But what if we want to manipulate dates in our code?
+
+It is possible to define *transformers* that will match a given regexp and transform the input.
+
+```php
+<?php
+/**
+ * @Transform /^(\d?\d-\d?\d-\d\d\d\d)$/
+ */
+public function castDate(string $date)
+{
+    return new DateTimeImmutable($date);
+}
+
+/**
+ * @Given /^today is (.*)$/
+ */
+public function todayIs(DateTimeImmutable $date)
+{
+    $today = $date;
+}
+```
+
+Note how the matcher of `todayIs` was changed from `(\d?\d-\d?\d-\d\d\d\d)` to `(.*)`.
+This is because a transformer only matches if it's more specific that what is in the step 
+definition.
+
+### Tables
+
+Soon
+
+### Localisation
+
+Soon
