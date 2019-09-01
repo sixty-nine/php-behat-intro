@@ -1,0 +1,23 @@
+{
+  "name": "sixty-nine/php-behat-intro",
+  "description": "Simple demo of behat",
+  "type": "project",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Daniele Barsotti",
+      "email": "github@sixty-nine.ch"
+    }
+  ],
+  "require": {
+    "webmozart/assert": "^1.4"
+  },
+  "require-dev": {
+    "behat/behat": "^3.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "SixtyNine\\": "src/SixtyNine/"
+    }
+  }
+}
